@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ibnu Fit">
+  <meta name="theme-color" content="#0D0F12">
+  <title>Ibnu · Fit Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0D0F12;
+      --card: #161A20;
+      --card2: #1D2229;
+      --border: #252B34;
+      --accent: #F97316;
+      --accent-dim: #7C3311;
+      --accent-bg: #2D1500;
+      --green: #22C55E;
+      --green-bg: #052E16;
+      --green-border: #14532D;
+      --red: #EF4444;
+      --red-bg: #2D0000;
+      --blue: #38BDF8;
+      --blue-bg: #0C1A2E;
+      --blue-border: #1E3A5F;
+      --purple: #A78BFA;
+      --text: #F0F2F5;
+      --muted: #8A9BB0;
+      --nav-h: 64px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background: var(--bg); }
+    body { font-family: 'DM Sans', sans-serif; color: var(--text); display: flex; flex-direction: column; }
+
+    /* ── SCROLL CONTAINER ── */
+    #app { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--nav-h) + 12px); }
+    #app::-webkit-scrollbar { display: none; }
+
+    /* ── HEADER ── */
+    .hdr { background: linear-gradient(135deg, #0D0F12 0%, #1A1008 100%); padding: 16px 16px 14px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+    .hdr::before { content: ''; position: absolute; top: -50px; right: -40px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(249,115,22,0.2) 0%, transparent 70%); pointer-events: none; }
+    .hdr-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+    .hdr-title { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1; }
+    .hdr-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+    .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); }
+    .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    /* ── BOTTOM NAV ── */
+    #nav { height: var(--nav-h); background: #111418; border-top: 1px solid var(--border); display: flex; align-items: center; flex-shrink: 0; }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; cursor: pointer; border: none; background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600; transition: color 0.2s; }
+    .nav-btn.active { color: var(--accent); }
+    .nav-btn .ico { font-size: 20px; line-height: 1; }
+
+    /* ── SHARED ── */
+    .page { display: none; padding: 16px; }
+    .page.active { display: block; }
+    .sec-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); letter-spacing: 1px; margin: 18px 0 12px; display: flex; align-items: center; gap: 6px; }
+    .sec-title:first-child { margin-top: 0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+    .b-orange { background: var(--accent-dim); color: var(--accent); }
+    .b-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .b-red { background: var(--red-bg); color: var(--red); border: 1px solid #7F1D1D; }
+    .b-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+    .alert { border-radius: 12px; padding: 13px 14px; margin-bottom: 14px; font-size: 13px; line-height: 1.6; }
+    .a-orange { background: var(--accent-bg); border: 1px solid var(--accent-dim); color: #FED7AA; }
+    .a-red { background: var(--red-bg); border: 1px solid #7F1D1D; color: #FECACA; }
+    .a-green { background: var(--green-bg); border: 1px solid var(--green-border); color: #BBF7D0; }
+    .a-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); color: #BAE6FD; }
+    .rule-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .rule-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .rule-row strong { color: var(--text); }
+    .rule-ico { flex-shrink: 0; margin-top: 1px; font-size: 15px; }
+
+    /* ── REST TIMER ── */
+    .timer-wrap { background: #110D00; border: 1px solid var(--accent-dim); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .timer-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .timer-icon { background: var(--accent); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .timer-title { font-weight: 700; font-size: 14px; }
+    .timer-sub { font-size: 11px; color: var(--muted); }
+    .timer-presets { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .timer-preset { flex: 1; min-width: 48px; padding: 7px 4px; border-radius: 8px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .timer-preset.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .timer-display { text-align: center; margin-bottom: 14px; }
+    .timer-num { font-family: 'Bebas Neue', sans-serif; font-size: 64px; line-height: 1; color: var(--text); transition: color 0.3s; }
+    .timer-num.low { color: var(--red); }
+    .timer-num.done-flash { color: var(--green); }
+    .timer-ring { width: 120px; height: 120px; margin: 0 auto 10px; position: relative; }
+    .timer-ring svg { transform: rotate(-90deg); }
+    .timer-ring-bg { fill: none; stroke: var(--card2); stroke-width: 8; }
+    .timer-ring-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.3s; }
+    .timer-ring-fg.low { stroke: var(--red); }
+    .timer-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Bebas Neue', sans-serif; font-size: 34px; color: var(--text); }
+    .timer-ring-text.low { color: var(--red); }
+    .timer-btns { display: flex; gap: 8px; }
+    .timer-start { flex: 2; padding: 12px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+    .timer-start:active { opacity: 0.8; }
+    .timer-reset { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    /* ── WORKOUT ── */
+    .day-scroller { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; }
+    .day-scroller::-webkit-scrollbar { display: none; }
+    .day-chip { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; font-size: 12px; font-weight: 600; background: transparent; color: var(--muted); transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+    .day-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .workout-day { display: none; }
+    .workout-day.active { display: block; }
+    .day-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .day-label { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; }
+    .day-focus { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .ex-list { display: flex; flex-direction: column; gap: 7px; }
+    .ex-row { display: flex; justify-content: space-between; align-items: center; background: var(--card2); border-radius: 9px; padding: 10px 12px; }
+    .ex-name { font-size: 13px; font-weight: 500; flex: 1; padding-right: 8px; }
+    .ex-sets { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .cardio-note { background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: 9px; padding: 10px 13px; font-size: 12px; color: var(--blue); margin-top: 10px; }
+    .weekly-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .weekly-row:last-child { border-bottom: none; }
+    .wk-day { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--accent); min-width: 40px; }
+    .wk-label { font-size: 13px; font-weight: 600; }
+    .wk-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── MEALS ── */
+    .macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+    .macro-box { background: var(--card2); border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .macro-val { font-family: 'Bebas Neue', sans-serif; font-size: 26px; }
+    .macro-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .macro-sub { font-size: 10px; color: var(--muted); }
+    .macro-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .meal-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .meal-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .meal-name { font-weight: 700; font-size: 14px; }
+    .meal-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .meal-kcal { font-size: 12px; font-weight: 700; color: var(--accent); }
+    .meal-item { display: flex; gap: 6px; font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+    .meal-item::before { content: '•'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+    /* ── SHOPPING ── */
+    .shop-controls { display: flex; gap: 8px; margin-bottom: 14px; }
+    .shop-btn { flex: 1; padding: 9px; border-radius: 9px; border: 1px solid var(--border); background: var(--card2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .shop-btn:active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .cat-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
+    .cat-title:first-child { margin-top: 0; }
+    .shop-item { display: flex; align-items: center; gap: 12px; background: var(--card2); border-radius: 9px; padding: 11px 12px; margin-bottom: 6px; cursor: pointer; transition: opacity 0.2s; user-select: none; -webkit-user-select: none; }
+    .shop-item.done { opacity: 0.4; }
+    .shop-item.done .shop-name { text-decoration: line-through; }
+    .shop-check { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; background: transparent; }
+    .shop-item.done .shop-check { background: var(--green); border-color: var(--green); }
+    .check-icon { display: none; color: #000; font-size: 13px; font-weight: 900; }
+    .shop-item.done .check-icon { display: block; }
+    .shop-name { font-size: 13px; font-weight: 500; flex: 1; }
+    .shop-qty { font-size: 11px; color: var(--accent); font-weight: 700; white-space: nowrap; }
+    .shop-note { font-size: 11px; color: var(--muted); width: 100%; margin-top: 2px; }
+    .progress-bar { background: var(--card2); border-radius: 999px; height: 5px; margin: 8px 0 16px; }
+    .progress-fill { height: 100%; border-radius: 999px; background: var(--green); transition: width 0.3s; }
+    .prog-text { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+    /* ── SUPPLEMENTS ── */
+    .supp-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .supp-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+    .supp-name { font-weight: 700; font-size: 14px; }
+    .supp-dose { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+    .supp-why { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* ── RULES ── */
+    .milestone { margin-bottom: 16px; }
+    .ms-hdr { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .ms-label { font-size: 13px; font-weight: 700; }
+    .ms-note { font-size: 12px; color: var(--muted); margin-bottom: 6px; line-height: 1.4; }
+    .pb { background: var(--card2); border-radius: 999px; height: 5px; }
+    .pb-fill { height: 100%; border-radius: 999px; background: var(--accent); }
+
+    /* ── INSTALL BANNER ── */
+    .install-banner { background: linear-gradient(135deg, #0A1628, #0D1F3C); border: 1px solid var(--blue-border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+    .install-title { font-weight: 700; font-size: 14px; color: var(--blue); margin-bottom: 8px; }
+    .install-steps { display: flex; flex-direction: column; gap: 6px; }
+    .install-step { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; line-height: 1.4; }
+    .step-num { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  </style>
+</head>
+<body>
+
+<!-- APP SCROLL AREA -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-label">Personalised Plan · Ibnu</div>
+    <div class="hdr-title">FAT LOSS PROGRAM</div>
+    <div class="hdr-sub">5-Day Split · Full Gym · HS & Kidney Stone Aware</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">115kg</div><div class="stat-lbl">Current</div></div>
+      <div class="stat"><div class="stat-val">90kg</div><div class="stat-lbl">Target</div></div>
+      <div class="stat"><div class="stat-val">2,300</div><div class="stat-lbl">kcal/day</div></div>
+      <div class="stat"><div class="stat-val">~6mo</div><div class="stat-lbl">Timeline</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ WORKOUT PAGE ═══════════ -->
+  <div id="page-workout" class="page active">
+
+    <!-- REST TIMER -->
+    <div class="timer-wrap">
+      <div class="timer-top">
+        <div class="timer-icon">⏱️</div>
+        <div>
+          <div class="timer-title">Rest Timer</div>
+          <div class="timer-sub">Tap a preset → Start. Phone vibrates when done.</div>
+        </div>
+      </div>
+      <div class="timer-presets">
+        <button class="timer-preset sel" onclick="setPreset(30,this)">30s</button>
+        <button class="timer-preset" onclick="setPreset(45,this)">45s</button>
+        <button class="timer-preset" onclick="setPreset(60,this)">1 min</button>
+        <button class="timer-preset" onclick="setPreset(90,this)">90s</button>
+        <button class="timer-preset" onclick="setPreset(120,this)">2 min</button>
+        <button class="timer-preset" onclick="setPreset(180,this)">3 min</button>
+      </div>
+      <div class="timer-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="timer-ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="timer-ring-fg" id="ring-fg" cx="60" cy="60" r="52"/>
+        </svg>
+        <div class="timer-ring-text" id="ring-text">0:30</div>
+      </div>
+      <div class="timer-btns">
+        <button class="timer-start" id="timer-start-btn" onclick="toggleTimer()">▶ Start</button>
+        <button class="timer-reset" onclick="resetTimer()">↩ Reset</button>
+      </div>
+    </div>
+
+    <div class="alert a-orange">
+      <strong>⚠️ HS Note:</strong> Wear moisture-wicking, breathable clothes. Shower immediately after every session. Prefer stationary bike over treadmill — less chafing. Skip exercises that stress any actively flaring area.
+    </div>
+
+    <div class="sec-title">📅 Your Week</div>
+
+    <div class="day-scroller" id="day-scroller">
+      <button class="day-chip active" onclick="showDay(0)">Day 1 · Push</button>
+      <button class="day-chip" onclick="showDay(1)">Day 2 · Pull</button>
+      <button class="day-chip" onclick="showDay(2)">Day 3 · Legs</button>
+      <button class="day-chip" onclick="showDay(3)">Day 4 · Upper</button>
+      <button class="day-chip" onclick="showDay(4)">Day 5 · Cardio</button>
+    </div>
+
+    <!-- DAY 1 -->
+    <div class="workout-day active card" id="day-0">
+      <div class="day-header">
+        <div><div class="day-label">Day 1 — Push</div><div class="day-focus">Chest · Shoulders · Triceps</div></div>
+        <span class="badge b-orange">Monday</span>
+      </div>
+      <div class="ex-list">
+        <div class="ex-row"><span class="ex-name">Flat Dumbbell Bench Press</span><span class="ex-sets">4 × 8–10</span></div>
+        <div class="ex-row"><span class="ex-name">Incline Dumbbell Press</span><span class="ex-sets">3 × 10–12</span></div>
+        <div class="ex-row"><span class="ex-name">Cable Lateral Raises</span><span class="ex-sets">3 × 12–15</span></div>
+        <div class="ex-row"><span class="ex-name">Dumbbell Shoulder Press</span><span class="ex-sets">3 × 10–12</span></div>
+        <div class="ex-row"><span class="ex-name">Cable Tricep Pushdowns</span><span class="ex-sets">3 × 12–15</span></div>
+        <div class="ex-row"><span class="ex-name">Overhead Tricep Extension (DB)</span><span class="ex-sets">3 × 12</span></div>
+      </div>
+      <div class="cardio-note">🚴 After: 20 min stationary bike — moderate pace (Zone 2)</div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="workout-day card" id="day-1">
+      <div class="day-header">
+        <div><div class="day-label">Day 2 — Pull</div><div class="day-focus">Back · Biceps · Rear Delts</div></div>
+        <span class="badge b-orange">Tuesday</span>
+      </div>
+      <div class="ex-list">
+        <div class="ex-row"><span class="ex-name">Lat Pulldown (Wide Grip)</span><span class="ex-sets">4 × 10–12</span></div>
+        <div class="ex-row"><span class="ex-name">Seated Cable Row</span><span class="ex-sets">3 × 10–12</span></div>
+        <div class="ex-row"><span class="ex-name">Single-Arm Dumbbell Row</span><span class="ex-sets">3 × 10 each</span></div>
+        <div class="ex-row"><span class="ex-name">Face Pulls (Cable)</span><span class="ex-sets">3 × 15</span></div>
+        <div class="ex-row"><span class="ex-name">Dumbbell Curl</span><span class="ex-sets">3 × 12</span></div>
+        <div class="ex-row"><span class="ex-name">Hammer Curl</span><span class="ex-sets">3 × 12</span></div>
+      </div>
+      <div class="cardio-note">🚴 After: 20 min stationary bike — moderate pace</div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="workout-day card" id="day-2">
+      <div class="day-header">
+        <div><div class="day-label">Day 3 — Legs + Core</div><div class="day-focus">Quads · Hamstrings · Calves · Core</div></div>
+        <span class="badge b-orange">Wednesday</span>
+      </div>
+      <div class="ex-list">
+        <div class="ex-row"><span class="ex-name">Leg Press</span><span class="ex-sets">4 × 10–12</span></div>
+        <div class="ex-row"><span class="ex-name">Romanian Deadlift (Dumbbells)</span><span class="ex-sets">3 × 10</span></div>
+        <div class="ex-row"><span class="ex-name">Leg Curl (Machine)</span><span class="ex-sets">3 × 12</span></div>
+        <div class="ex-row"><span class="ex-name">Leg Extension (Machine)</span><span class="ex-sets">3 × 12</span></div>
+        <div class="ex-row"><span class="ex-name">Standing Calf Raises</span><span class="ex-sets">4 × 15–20</span></div>
+        <div class="ex-row"><span class="ex-name">Plank Hold</span><span class="ex-sets">3 × 45 sec</span></div>
+        <div class="ex-row"><span class="ex-name">Dead Bug</span><span class="ex-sets">3 × 10</span></div>
+        <div class="ex-row"><span class="ex-name">Bicycle Crunch</span><span class="ex-sets">3 × 15 each</span></div>
+      </div>
+      <div class="cardio-note">💪 No extra cardio — legs day is already metabolically intense. Rest well tonight.</div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="workout-day card" id="day-3">
+      <div class="day-header">
+        <div><div class="day-label">Day 4 — Upper</div><div class="day-focus">Full Upper Body Compounds</div></div>
+        <span class="badge b-orange">Thursday</span>
+      </div>
+      <div class="ex-list">
+        <div class="ex-row"><span class="ex-name">Cable Seated Row (Heavy)</span><span class="ex-sets">4 × 8</span></div>
+        <div class="ex-row"><span class="ex-name">Machine Shoulder Press</span><span class="ex-sets">3 × 8</span></div>
+        <div class="ex-row"><span class="ex-name">Lat Pulldown (Close Grip)</span><span class="ex-sets">3 × 8–10</span></div>
+        <div class="ex-row"><span class="ex-name">Dips / Assisted Dips</span><span class="ex-sets">3 × 10</span></div>
+        <div class="ex-row"><span class="ex-name">Cable Chest Fly</span><span class="ex-sets">3 × 12</span></div>
+        <div class="ex-row"><span class="ex-name">Rear Delt Cable Fly</span><span class="ex-sets">3 × 12</span></div>
+      </div>
+      <div class="cardio-note">🚴 After: 20 min stationary bike — moderate pace</div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div class="workout-day card" id="day-4">
+      <div class="day-header">
+        <div><div class="day-label">Day 5 — Cardio + Core</div><div class="day-focus">Fat Burn · Active Recovery · Mobility</div></div>
+        <span class="badge b-orange">Friday</span>
+      </div>
+      <div class="ex-list">
+        <div class="ex-row"><span class="ex-name">Stationary Bike (Zone 2 LISS)</span><span class="ex-sets">35–40 min</span></div>
+        <div class="ex-row"><span class="ex-name">Leg Raises</span><span class="ex-sets">4 × 12</span></div>
+        <div class="ex-row"><span class="ex-name">Side Plank</span><span class="ex-sets">3 × 30s each</span></div>
+        <div class="ex-row"><span class="ex-name">Mountain Climbers</span><span class="ex-sets">3 × 20</span></div>
+        <div class="ex-row"><span class="ex-name">Hip Flexor Stretch</span><span class="ex-sets">2 min each</span></div>
+        <div class="ex-row"><span class="ex-name">Full Body Stretch</span><span class="ex-sets">10 min</span></div>
+      </div>
+      <div class="cardio-note">✅ Zone 2 = pace where you can still hold a conversation. This is your main fat-burn session.</div>
+    </div>
+
+    <div class="sec-title">📌 Weekly Schedule</div>
+    <div class="card">
+      <div class="weekly-row"><div class="wk-day">MON</div><div><div class="wk-label">Day 1 — Push</div><div class="wk-sub">Chest / Shoulders / Triceps</div></div></div>
+      <div class="weekly-row"><div class="wk-day">TUE</div><div><div class="wk-label">Day 2 — Pull</div><div class="wk-sub">Back / Biceps / Rear Delts</div></div></div>
+      <div class="weekly-row"><div class="wk-day">WED</div><div><div class="wk-label">Day 3 — Legs + Core</div><div class="wk-sub">Lower body + core circuit</div></div></div>
+      <div class="weekly-row"><div class="wk-day">THU</div><div><div class="wk-label">Day 4 — Upper</div><div class="wk-sub">Compound upper strength</div></div></div>
+      <div class="weekly-row"><div class="wk-day">FRI</div><div><div class="wk-label">Day 5 — Cardio + Core</div><div class="wk-sub">Zone 2 + active recovery</div></div></div>
+      <div class="weekly-row"><div class="wk-day" style="color:var(--muted)">SAT</div><div><div class="wk-label" style="color:var(--muted)">Rest</div><div class="wk-sub">Walk 20–30 min if possible</div></div></div>
+      <div class="weekly-row"><div class="wk-day" style="color:var(--muted)">SUN</div><div><div class="wk-label" style="color:var(--muted)">Rest</div><div class="wk-sub">Full recovery</div></div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MEALS PAGE ═══════════ -->
+  <div id="page-meals" class="page">
+
+    <div class="sec-title">📊 Daily Targets</div>
+    <div class="macro-grid">
+      <div class="macro-box"><div class="macro-val" style="color:var(--accent)">2,300</div><div class="macro-lbl">kcal / day</div><div class="macro-sub">~500 deficit</div></div>
+      <div class="macro-box"><div class="macro-val" style="color:var(--green)">160g</div><div class="macro-lbl">Protein</div><div class="macro-sub">640 kcal</div></div>
+      <div class="macro-box"><div class="macro-val" style="color:var(--blue)">250g</div><div class="macro-lbl">Carbs (low GI)</div><div class="macro-sub">1000 kcal</div></div>
+    </div>
+    <div class="macro-grid2">
+      <div class="macro-box"><div class="macro-val" style="color:var(--purple)">72g</div><div class="macro-lbl">Healthy Fats</div></div>
+      <div class="macro-box"><div class="macro-val" style="color:var(--accent)">4L</div><div class="macro-lbl">Water Daily</div></div>
+    </div>
+
+    <div class="alert a-orange">
+      <strong>💡 Fat Loss Reality:</strong> You cannot spot-reduce face or belly fat. Your body loses fat systemically. The deficit + resistance training pulls fat from everywhere — face thins out noticeably, then the belly follows. Stay the course.
+    </div>
+
+    <div class="sec-title">🍽️ Daily Meal Plan</div>
+
+    <div class="meal-card">
+      <div class="meal-hdr"><div><div class="meal-name">☀️ Breakfast</div><div class="meal-time">⏰ 7:30 – 8:30 AM</div></div><div class="meal-kcal">~510 kcal</div></div>
+      <div class="meal-item">3 whole eggs scrambled in olive oil with mushrooms & bell peppers</div>
+      <div class="meal-item">1 cup rolled oats cooked in water with cinnamon & 1 tsp raw honey</div>
+      <div class="meal-item">1 medium banana</div>
+      <div class="meal-item">500ml lemon water (squeeze ½ lemon — helps prevent kidney stones)</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-hdr"><div><div class="meal-name">🍎 Mid-Morning Snack</div><div class="meal-time">⏰ 10:30 AM</div></div><div class="meal-kcal">~220 kcal</div></div>
+      <div class="meal-item">1 scoop egg white protein shake in water (NOT milk)</div>
+      <div class="meal-item">1 medium apple</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-hdr"><div><div class="meal-name">🍱 Lunch</div><div class="meal-time">⏰ 1:00 – 2:00 PM</div></div><div class="meal-kcal">~620 kcal</div></div>
+      <div class="meal-item">150g grilled or baked chicken breast</div>
+      <div class="meal-item">1 cup cooked brown rice OR 2 yeast-free chapatis</div>
+      <div class="meal-item">Mixed vegetable curry (olive/coconut oil only — no cream, no butter)</div>
+      <div class="meal-item">Cucumber & carrot salad with lemon + olive oil dressing</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-hdr"><div><div class="meal-name">⚡ Pre-Workout</div><div class="meal-time">⏰ 30–45 min before</div></div><div class="meal-kcal">~210 kcal</div></div>
+      <div class="meal-item">1 medium banana</div>
+      <div class="meal-item">2–3 dates (natural energy, no refined sugar)</div>
+      <div class="meal-item">350ml water</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-hdr"><div><div class="meal-name">💪 Post-Workout</div><div class="meal-time">⏰ Within 30 min after</div></div><div class="meal-kcal">~340 kcal</div></div>
+      <div class="meal-item">1 scoop egg white protein shake in water</div>
+      <div class="meal-item">1 cup baked/boiled sweet potato OR a few rice cakes</div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-hdr"><div><div class="meal-name">🌙 Dinner</div><div class="meal-time">⏰ 7:30 – 8:30 PM</div></div><div class="meal-kcal">~400 kcal</div></div>
+      <div class="meal-item">150g baked salmon or grilled fish (hammour, sea bass, tuna)</div>
+      <div class="meal-item">1 cup red lentil dal OR chickpea curry</div>
+      <div class="meal-item">Steamed vegetables (broccoli, zucchini, carrots)</div>
+      <div class="meal-item">Small portion rice if still hungry</div>
+    </div>
+
+    <div class="sec-title">✅ Eat Freely</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">✅</span><span>Lean protein: chicken, fish, eggs, lentils, chickpeas</span></div>
+      <div class="rule-row"><span class="rule-ico">✅</span><span>Complex carbs: brown rice, oats, sweet potato, yeast-free chapati</span></div>
+      <div class="rule-row"><span class="rule-ico">✅</span><span>Healthy fats: olive oil, coconut oil, fatty fish (salmon)</span></div>
+      <div class="rule-row"><span class="rule-ico">✅</span><span>All vegetables except large amounts of spinach (oxalate)</span></div>
+      <div class="rule-row"><span class="rule-ico">✅</span><span>Fruits: banana, apple, berries, pomegranate, dates</span></div>
+      <div class="rule-row"><span class="rule-ico">✅</span><span>Turmeric & ginger: add to everything — anti-inflammatory superstars</span></div>
+      <div class="rule-row"><span class="rule-ico">✅</span><span>Lemon water daily — prevents calcium oxalate kidney stones</span></div>
+    </div>
+
+    <div class="sec-title">🚫 Avoid Always</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Dairy</strong> — milk, ghee, butter, cheese, cream, yogurt. Major HS trigger.</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Refined sugar</strong> — sodas, sweets, packaged snacks, white sugar</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Yeast foods</strong> — commercial bread, pizza dough, fermented items</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>High sodium</strong> — fast food, packet noodles, canned soups, processed meats</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Large amounts of spinach, peanuts, almonds</strong> — high oxalate (kidney stones)</span></div>
+      <div class="rule-row"><span class="rule-ico">⚠️</span><span><strong>Nightshades (tomatoes, eggplant, peppers)</strong> — test carefully. If eating them triggers flares, eliminate.</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SHOPPING PAGE ═══════════ -->
+  <div id="page-shopping" class="page">
+    <div class="sec-title">🛒 Grocery List</div>
+
+    <div class="prog-text" id="prog-text">Loading...</div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+
+    <div class="shop-controls">
+      <button class="shop-btn" onclick="clearAll()">↩ Reset All</button>
+      <button class="shop-btn" onclick="checkAll()">✓ Got Everything</button>
+    </div>
+
+    <div id="shop-list"></div>
+  </div>
+
+  <!-- ═══════════ SUPPS PAGE ═══════════ -->
+  <div id="page-supps" class="page">
+
+    <div class="alert a-green">
+      <strong>🥚 Egg White Protein Only</strong> — Do NOT buy whey (dairy) or pea protein (you've tried and it didn't work). Egg white protein is your best option: same quality protein, no dairy, neutral taste. Look for NOW Sports, Dymatize, or MyProtein egg white protein.
+    </div>
+
+    <div class="sec-title">💊 Your Stack</div>
+
+    <div class="supp-card">
+      <div class="supp-hdr"><div><div class="supp-name">🥚 Egg White Protein Powder</div><div class="supp-dose">1–2 scoops/day in water</div></div><span class="badge b-green">Essential</span></div>
+      <div class="supp-why">Primary protein supplement. Dairy-free, easy to digest, neutral taste — much better than pea protein. Mix with water only. Brands: NOW Sports, Jay Robb, or MyProtein. Can order via iHerb if not available locally in Qatar.</div>
+    </div>
+
+    <div class="supp-card">
+      <div class="supp-hdr"><div><div class="supp-name">🐟 Omega-3 Fish Oil</div><div class="supp-dose">2g EPA+DHA daily with a meal</div></div><span class="badge b-green">Essential</span></div>
+      <div class="supp-why">Directly reduces systemic inflammation — one of the best things you can do for HS alongside diet. Also improves fat metabolism. Take with food to avoid aftertaste.</div>
+    </div>
+
+    <div class="supp-card">
+      <div class="supp-hdr"><div><div class="supp-name">☀️ Vitamin D3 + K2</div><div class="supp-dose">3000–4000 IU D3 daily</div></div><span class="badge b-green">Essential</span></div>
+      <div class="supp-why">Most people in Qatar working indoors are deficient. D3 is anti-inflammatory and helps immune regulation — key for HS. K2 ensures calcium goes to your bones, not your kidneys (critical for your stone history).</div>
+    </div>
+
+    <div class="supp-card">
+      <div class="supp-hdr"><div><div class="supp-name">🌙 Magnesium Glycinate</div><div class="supp-dose">300mg before bed</div></div><span class="badge b-blue">Recommended</span></div>
+      <div class="supp-why">Improves sleep quality (you need to get from 6–7 hrs to 7.5+), reduces inflammation, and speeds muscle recovery. Glycinate form is gentle on stomach. Take 30 min before sleep.</div>
+    </div>
+
+    <div class="supp-card">
+      <div class="supp-hdr"><div><div class="supp-name">🔷 Zinc</div><div class="supp-dose">30mg/day — max 3 months then reassess</div></div><span class="badge b-orange">HS Specific</span></div>
+      <div class="supp-why">Clinical studies show zinc reduces HS flare frequency and severity. Take with food to avoid nausea. Don't run it indefinitely as it can deplete copper — take a break after 3 months.</div>
+    </div>
+
+    <div class="supp-card">
+      <div class="supp-hdr"><div><div class="supp-name">⚡ Creatine Monohydrate</div><div class="supp-dose">5g/day — DOCTOR CLEARANCE FIRST</div></div><span class="badge b-red">⚠️ Check First</span></div>
+      <div class="supp-why">Very effective for strength and body composition. However, with your kidney stone history, you MUST drink minimum 4L water daily when taking it and get your nephrologist's OK first. It raises creatinine levels which looks alarming on routine tests.</div>
+    </div>
+
+    <div class="sec-title">🚫 Never Buy These</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Whey protein</strong> — dairy-based, HS trigger</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Pea protein</strong> — already tried and didn't work for you</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>High-dose Vitamin C (&gt;500mg)</strong> — converts to oxalate, feeds kidney stones</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Mass gainers</strong> — full of maltodextrin, dairy, and sugar</span></div>
+      <div class="rule-row"><span class="rule-ico">🚫</span><span><strong>Pre-workouts with proprietary blends</strong> — often contain hidden additives that can trigger HS</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ RULES PAGE ═══════════ -->
+  <div id="page-rules" class="page">
+
+    <div class="alert a-red">
+      <strong>🔴 HS + Weight Loss:</strong> Losing weight is THE most effective intervention for HS severity. Every kilogram you lose reduces friction, sweating, and systemic inflammation. This plan is designed to make that happen as efficiently as possible.
+    </div>
+
+    <div class="sec-title">⚕️ HS Rules</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">🔵</span><span>Shower immediately after every single workout — no exceptions</span></div>
+      <div class="rule-row"><span class="rule-ico">🔵</span><span>Wear loose, moisture-wicking gym clothes — nothing tight in problem areas</span></div>
+      <div class="rule-row"><span class="rule-ico">🔵</span><span>Use gentle, fragrance-free soap on affected areas post-workout</span></div>
+      <div class="rule-row"><span class="rule-ico">🔵</span><span>Keep a food journal — note which specific foods trigger flares for you personally</span></div>
+      <div class="rule-row"><span class="rule-ico">🔵</span><span>Test nightshades separately: eliminate tomatoes, eggplant, peppers for 3 weeks and see if flares reduce</span></div>
+      <div class="rule-row"><span class="rule-ico">🔵</span><span>Anti-inflammatory eating is your long-term weapon: fatty fish, turmeric, ginger, olive oil</span></div>
+    </div>
+
+    <div class="sec-title">🫘 Kidney Stone Rules</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">🟡</span><span><strong>4 litres of water daily — this is your #1 prevention strategy, non-negotiable</strong></span></div>
+      <div class="rule-row"><span class="rule-ico">🟡</span><span>Squeeze lemon into your water — citrate prevents calcium oxalate stone formation</span></div>
+      <div class="rule-row"><span class="rule-ico">🟡</span><span>Spread your protein intake across all meals — don't overload in one sitting</span></div>
+      <div class="rule-row"><span class="rule-ico">🟡</span><span>Keep sodium very low — fast food, salty snacks, and processed meats all increase stone risk</span></div>
+      <div class="rule-row"><span class="rule-ico">🟡</span><span>No high-dose Vitamin C supplements — converts to oxalate in your body</span></div>
+      <div class="rule-row"><span class="rule-ico">🟡</span><span>Consult your doctor before starting creatine — requires extra hydration and medical clearance</span></div>
+    </div>
+
+    <div class="sec-title">🧠 Mindset & Recovery</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">⚡</span><span>Sleep 7.5 hrs minimum — you're at 6–7 hrs now. Poor sleep spikes cortisol which literally holds belly fat.</span></div>
+      <div class="rule-row"><span class="rule-ico">⚡</span><span>Walk on rest days — 20–30 min of walking burns additional calories and reduces inflammation</span></div>
+      <div class="rule-row"><span class="rule-ico">⚡</span><span>Add weight or reps every 1–2 weeks — progressive overload is what drives body change</span></div>
+      <div class="rule-row"><span class="rule-ico">⚡</span><span>Expect 0.5–1kg loss per week — faster = muscle loss. Slow and steady is the strategy.</span></div>
+      <div class="rule-row"><span class="rule-ico">⚡</span><span>Take monthly photos, not daily scale readings — weight fluctuates ±2kg from water alone</span></div>
+      <div class="rule-row"><span class="rule-ico">⚡</span><span>Recalculate your calorie target every 4 weeks — as you lose weight, your TDEE drops too</span></div>
+    </div>
+
+    <div class="sec-title">📅 12-Week Milestones</div>
+    <div class="card">
+      <div class="milestone">
+        <div class="ms-hdr"><span class="ms-label">Week 1–3: Foundation</span><span class="badge b-orange">~2kg lost</span></div>
+        <div class="ms-note">Body adapts to training. Energy may dip in week 1. Focus entirely on consistency — not perfection.</div>
+        <div class="pb"><div class="pb-fill" style="width:20%"></div></div>
+      </div>
+      <div class="milestone">
+        <div class="ms-hdr"><span class="ms-label">Week 4–6: Momentum</span><span class="badge b-orange">~4–5kg lost</span></div>
+        <div class="ms-note">Strength visibly increasing. Face begins to lean out. HS may already start reducing with sustained diet changes.</div>
+        <div class="pb"><div class="pb-fill" style="width:45%"></div></div>
+      </div>
+      <div class="milestone">
+        <div class="ms-hdr"><span class="ms-label">Week 7–9: Visible Change</span><span class="badge b-orange">~6–8kg lost</span></div>
+        <div class="ms-note">Waist reduction clearly visible. People around you will start noticing. This is where motivation compounds.</div>
+        <div class="pb"><div class="pb-fill" style="width:68%"></div></div>
+      </div>
+      <div class="milestone" style="margin-bottom:0">
+        <div class="ms-hdr"><span class="ms-label">Week 10–12: Transformation</span><span class="badge b-orange">~8–10kg lost</span></div>
+        <div class="ms-note">Target: ~105–107kg by Week 12. Body recomposition is well underway. Continue and you hit 90kg by Month 6.</div>
+        <div class="pb"><div class="pb-fill" style="width:88%"></div></div>
+      </div>
+    </div>
+
+    <div class="sec-title">📲 Add to Home Screen</div>
+    <div class="install-banner">
+      <div class="install-title">📱 Install This as an App</div>
+      <div class="install-steps">
+        <div class="install-step"><div class="step-num">1</div><span>Open this file in Chrome on your Vivo X300 Pro</span></div>
+        <div class="install-step"><div class="step-num">2</div><span>Tap the three-dot menu (⋮) in the top-right corner</span></div>
+        <div class="install-step"><div class="step-num">3</div><span>Tap <strong style="color:var(--text)">"Add to Home Screen"</strong></span></div>
+        <div class="install-step"><div class="step-num">4</div><span>Name it "Fit Plan" and tap Add — it'll appear as an icon on your home screen</span></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════ WATER PAGE ═══════════ -->
+  <div id="page-water" class="page">
+
+    <div class="sec-title">💧 Daily Water Tracker</div>
+
+    <!-- BIG TRACKER -->
+    <div class="card" style="text-align:center;padding:24px 16px;">
+      <div id="water-amount" style="font-family:'Bebas Neue',sans-serif;font-size:72px;line-height:1;color:var(--blue);">0.0L</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">of 4.0L daily goal</div>
+      <div class="progress-bar" style="margin:12px 0 16px;">
+        <div id="water-prog" class="progress-fill" style="background:var(--blue);width:0%;transition:width 0.4s;"></div>
+      </div>
+      <!-- GLASS GRID -->
+      <div id="glass-grid" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;"></div>
+      <!-- BUTTONS -->
+      <div style="display:flex;gap:8px;">
+        <button onclick="addWater()" style="flex:2;padding:14px;border-radius:10px;border:none;background:var(--blue);color:#000;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">+ 250ml Glass</button>
+        <button onclick="removeWater()" style="flex:1;padding:14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;">↩ Undo</button>
+      </div>
+      <button onclick="resetWater()" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Reset Day</button>
+      <div id="water-msg" style="margin-top:14px;font-size:13px;color:var(--muted);min-height:20px;"></div>
+    </div>
+
+    <!-- ALARM -->
+    <div class="sec-title">⏰ Water Reminder Alarm</div>
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Set a repeating reminder. The app will buzz your phone and send a notification every X minutes to drink a glass. <strong style="color:var(--text)">Allow notifications when prompted.</strong></div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Remind me every</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="alarm-presets">
+        <button class="timer-preset" onclick="setAlarmInterval(20,this)">20 min</button>
+        <button class="timer-preset sel" onclick="setAlarmInterval(30,this)">30 min</button>
+        <button class="timer-preset" onclick="setAlarmInterval(45,this)">45 min</button>
+        <button class="timer-preset" onclick="setAlarmInterval(60,this)">1 hour</button>
+        <button class="timer-preset" onclick="setAlarmInterval(90,this)">90 min</button>
+      </div>
+
+      <div id="alarm-status" style="background:var(--card2);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <span id="alarm-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;display:inline-block;"></span>
+        <span id="alarm-status-text">Alarm is off</span>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button id="alarm-toggle-btn" onclick="toggleAlarm()" style="flex:1;padding:13px;border-radius:10px;border:none;background:var(--blue);color:#000;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">🔔 Start Alarm</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">Note: Alarm works while this app is open. For best results, keep the app open in the background. On Android, tap "Allow" when Chrome asks for notification permission.</div>
+    </div>
+
+    <div class="sec-title">💡 Hydration Tips</div>
+    <div class="card">
+      <div class="rule-row"><span class="rule-ico">💧</span><span>Start every morning with 500ml of lemon water before anything else</span></div>
+      <div class="rule-row"><span class="rule-ico">💧</span><span>Drink 350ml before every workout and sip throughout</span></div>
+      <div class="rule-row"><span class="rule-ico">💧</span><span>If your urine is dark yellow, you're behind — drink immediately</span></div>
+      <div class="rule-row"><span class="rule-ico">💧</span><span>4L is your minimum — more if you sweat heavily during workouts</span></div>
+      <div class="rule-row"><span class="rule-ico">💧</span><span>Lemon in water reduces kidney stone formation — add it daily</span></div>
+      <div class="rule-row"><span class="rule-ico">💧</span><span>Avoid drinking huge amounts right before bed — spread it across the day</span></div>
+    </div>
+
+  </div>
+
+</div><!-- end #app -->
+
+<!-- BOTTOM NAVIGATION -->
+<nav id="nav">
+  <button class="nav-btn active" onclick="showTab('workout')"><span class="ico">🏋️</span>Workout</button>
+  <button class="nav-btn" onclick="showTab('meals')"><span class="ico">🥗</span>Meals</button>
+  <button class="nav-btn" onclick="showTab('shopping')"><span class="ico">🛒</span>Shopping</button>
+  <button class="nav-btn" onclick="showTab('supps')"><span class="ico">💊</span>Supps</button>
+  <button class="nav-btn" onclick="showTab('water')"><span class="ico">💧</span>Water</button>
+  <button class="nav-btn" onclick="showTab('rules')"><span class="ico">⚡</span>Rules</button>
+</nav>
+
+<script>
+// ── SHOPPING LIST DATA ──
+const shopData = [
+  { cat: "🥩 Proteins & Eggs", items: [
+    { id: "s1", name: "Chicken breast (boneless, skinless)", qty: "1.5 kg/week" },
+    { id: "s2", name: "Salmon fillets (fresh or frozen)", qty: "500g" },
+    { id: "s3", name: "White fish — hammour, sea bass, or tuna", qty: "500g" },
+    { id: "s4", name: "Whole eggs", qty: "2 dozen (24)" },
+    { id: "s5", name: "Canned tuna in water (NOT oil)", qty: "4 cans" },
+  ]},
+  { cat: "🥦 Vegetables", items: [
+    { id: "v1", name: "Broccoli", qty: "500g" },
+    { id: "v2", name: "Zucchini (courgette)", qty: "4 medium" },
+    { id: "v3", name: "Carrots", qty: "500g" },
+    { id: "v4", name: "Bell peppers — red & yellow", qty: "4 (test for HS)" },
+    { id: "v5", name: "Mushrooms (button or portobello)", qty: "300g" },
+    { id: "v6", name: "Cucumber", qty: "4" },
+    { id: "v7", name: "Onions", qty: "1 kg" },
+    { id: "v8", name: "Garlic", qty: "1 full head" },
+    { id: "v9", name: "Green beans", qty: "300g" },
+    { id: "v10", name: "Fresh ginger", qty: "1 hand-sized piece" },
+  ]},
+  { cat: "🍎 Fruits", items: [
+    { id: "f1", name: "Bananas", qty: "10" },
+    { id: "f2", name: "Apples", qty: "8" },
+    { id: "f3", name: "Lemons", qty: "8 (lemon water daily!)" },
+    { id: "f4", name: "Frozen mixed berries", qty: "500g bag" },
+    { id: "f5", name: "Dates (Medjool or regular)", qty: "500g" },
+  ]},
+  { cat: "🌾 Grains & Carbs", items: [
+    { id: "g1", name: "Rolled oats (NOT instant)", qty: "1 kg" },
+    { id: "g2", name: "Brown rice", qty: "2 kg" },
+    { id: "g3", name: "Sweet potatoes", qty: "1 kg" },
+    { id: "g4", name: "Whole wheat flour (atta) — for yeast-free chapati", qty: "2 kg" },
+    { id: "g5", name: "Red lentils (masoor dal)", qty: "500g" },
+    { id: "g6", name: "Green lentils", qty: "500g" },
+    { id: "g7", name: "Canned chickpeas", qty: "2 cans" },
+    { id: "g8", name: "Rice cakes", qty: "2 packs (post-workout snack)" },
+  ]},
+  { cat: "🫙 Oils & Fats", items: [
+    { id: "o1", name: "Extra virgin olive oil", qty: "1 litre bottle" },
+    { id: "o2", name: "Coconut oil", qty: "500g jar" },
+  ]},
+  { cat: "🌶️ Spices & Seasonings", items: [
+    { id: "sp1", name: "Turmeric powder", qty: "1 jar" },
+    { id: "sp2", name: "Cumin seeds", qty: "1 jar" },
+    { id: "sp3", name: "Ground coriander", qty: "1 jar" },
+    { id: "sp4", name: "Black pepper (whole or ground)", qty: "1 jar" },
+    { id: "sp5", name: "Cinnamon powder", qty: "1 jar" },
+    { id: "sp6", name: "Paprika (mild)", qty: "1 jar" },
+    { id: "sp7", name: "Red chili flakes", qty: "1 small jar" },
+    { id: "sp8", name: "Sea salt (use sparingly)", qty: "1 small bag" },
+  ]},
+  { cat: "🥫 Pantry Staples", items: [
+    { id: "p1", name: "Raw honey", qty: "1 small jar" },
+    { id: "p2", name: "Apple cider vinegar", qty: "1 bottle" },
+    { id: "p3", name: "Green tea bags", qty: "1 box" },
+  ]},
+  { cat: "💊 Supplements to Order", items: [
+    { id: "sup1", name: "Egg white protein powder (NOW Sports / Jay Robb / MyProtein)", qty: "1 bag" },
+    { id: "sup2", name: "Omega-3 fish oil capsules (high EPA+DHA)", qty: "1 bottle" },
+    { id: "sup3", name: "Vitamin D3 + K2 combined", qty: "1 bottle" },
+    { id: "sup4", name: "Magnesium Glycinate 300mg", qty: "1 bottle" },
+    { id: "sup5", name: "Zinc 30mg tablets", qty: "1 bottle (3 month supply)" },
+  ]},
+];
+
+// ── CHECKED STATE (localStorage) ──
+let checked = {};
+try { checked = JSON.parse(localStorage.getItem('ibnu_shop') || '{}'); } catch(e) {}
+
+function saveChecked() {
+  try { localStorage.setItem('ibnu_shop', JSON.stringify(checked)); } catch(e) {}
+}
+
+function buildShopList() {
+  const container = document.getElementById('shop-list');
+  let html = '';
+  shopData.forEach(cat => {
+    html += `<div class="cat-title">${cat.cat}</div>`;
+    cat.items.forEach(item => {
+      const done = checked[item.id] ? 'done' : '';
+      html += `
+        <div class="shop-item ${done}" id="si-${item.id}" onclick="toggleItem('${item.id}')">
+          <div class="shop-check"><span class="check-icon">✓</span></div>
+          <div style="flex:1">
+            <div class="shop-name">${item.name}</div>
+            <div class="shop-qty">${item.qty}</div>
+          </div>
+        </div>`;
+    });
+  });
+  container.innerHTML = html;
+  updateProgress();
+}
+
+function updateProgress() {
+  const allItems = shopData.flatMap(c => c.items);
+  const total = allItems.length;
+  const done = allItems.filter(i => checked[i.id]).length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = `${done} of ${total} items checked (${pct}%)`;
+}
+
+function toggleItem(id) {
+  checked[id] = !checked[id];
+  saveChecked();
+  const el = document.getElementById('si-' + id);
+  if (el) el.classList.toggle('done', checked[id]);
+  updateProgress();
+}
+
+function clearAll() {
+  checked = {};
+  saveChecked();
+  buildShopList();
+}
+
+function checkAll() {
+  shopData.forEach(cat => cat.items.forEach(item => { checked[item.id] = true; }));
+  saveChecked();
+  buildShopList();
+}
+
+// ── TAB SWITCHING ──
+function showTab(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = ['workout','meals','shopping','supps','water','rules'];
+  const idx = tabs.indexOf(id);
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  document.getElementById('app').scrollTo(0, 0);
+}
+
+// ── DAY SWITCHING ──
+function showDay(idx) {
+  document.querySelectorAll('.workout-day').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('day-' + idx).classList.add('active');
+  document.querySelectorAll('.day-chip')[idx].classList.add('active');
+}
+
+// ── REST TIMER ──
+const CIRC = 2 * Math.PI * 52;
+let timerDuration = 30;
+let timerLeft = 30;
+let timerRunning = false;
+let timerInterval = null;
+
+document.getElementById('ring-fg').style.strokeDasharray = CIRC;
+document.getElementById('ring-fg').style.strokeDashoffset = 0;
+
+function setPreset(secs, btn) {
+  document.querySelectorAll('.timer-preset').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  timerDuration = secs;
+  if (!timerRunning) { timerLeft = secs; updateTimerUI(); }
+}
+
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-start-btn').textContent = '▶ Resume';
+  } else {
+    if (timerLeft <= 0) { timerLeft = timerDuration; }
+    timerRunning = true;
+    document.getElementById('timer-start-btn').textContent = '⏸ Pause';
+    timerInterval = setInterval(() => {
+      timerLeft--;
+      updateTimerUI();
+      if (timerLeft <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-start-btn').textContent = '▶ Start';
+        timerDone();
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerLeft = timerDuration;
+  document.getElementById('timer-start-btn').textContent = '▶ Start';
+  const fg = document.getElementById('ring-fg');
+  fg.classList.remove('low');
+  document.getElementById('ring-text').classList.remove('low');
+  updateTimerUI();
+}
+
+function updateTimerUI() {
+  const mins = Math.floor(timerLeft / 60);
+  const secs = timerLeft % 60;
+  const txt = mins > 0 ? `${mins}:${secs.toString().padStart(2,'0')}` : `0:${secs.toString().padStart(2,'0')}`;
+  document.getElementById('ring-text').textContent = txt;
+  const pct = timerDuration > 0 ? timerLeft / timerDuration : 1;
+  document.getElementById('ring-fg').style.strokeDashoffset = CIRC * (1 - pct);
+  const isLow = timerLeft <= 5 && timerLeft > 0;
+  document.getElementById('ring-fg').classList.toggle('low', isLow);
+  document.getElementById('ring-text').classList.toggle('low', isLow);
+}
+
+function timerDone() {
+  // Vibrate pattern: buzz 3 times
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+  // Flash green
+  const txt = document.getElementById('ring-text');
+  txt.textContent = 'GO!';
+  txt.style.color = 'var(--green)';
+  document.getElementById('ring-fg').style.stroke = 'var(--green)';
+  setTimeout(() => {
+    txt.style.color = '';
+    document.getElementById('ring-fg').style.stroke = '';
+    timerLeft = timerDuration;
+    updateTimerUI();
+  }, 2000);
+}
+
+updateTimerUI();
+
+// ── WATER TRACKER ──
+const GLASS_ML = 250;
+const GOAL_ML = 4000;
+const TOTAL_GLASSES = GOAL_ML / GLASS_ML; // 16
+
+function todayKey() {
+  return 'water_' + new Date().toISOString().slice(0,10);
+}
+
+let waterGlasses = 0;
+try { waterGlasses = parseInt(localStorage.getItem(todayKey()) || '0'); } catch(e) {}
+
+function buildGlassGrid() {
+  const grid = document.getElementById('glass-grid');
+  let html = '';
+  for (let i = 0; i < TOTAL_GLASSES; i++) {
+    const filled = i < waterGlasses;
+    html += `<div style="width:36px;height:44px;border-radius:6px;border:2px solid ${filled ? 'var(--blue)' : 'var(--border)'};background:${filled ? 'rgba(56,189,248,0.25)' : 'transparent'};display:flex;align-items:center;justify-content:center;font-size:18px;transition:all 0.2s;">${filled ? '💧' : ''}</div>`;
+  }
+  grid.innerHTML = html;
+  const ml = waterGlasses * GLASS_ML;
+  const litres = (ml / 1000).toFixed(1);
+  const pct = Math.min(100, Math.round((ml / GOAL_ML) * 100));
+  document.getElementById('water-amount').textContent = litres + 'L';
+  document.getElementById('water-prog').style.width = pct + '%';
+  // Message
+  const msgs = [
+    [0,  "Start your day with lemon water! 🍋"],
+    [4,  "Good start! Keep going 💪"],
+    [8,  "Halfway there! You're doing great 👏"],
+    [12, "Almost there! Push through 🔥"],
+    [16, "Goal reached! 4L done for today 🎉"],
+  ];
+  let msg = msgs[0][1];
+  for (const [thresh, text] of msgs) { if (waterGlasses >= thresh) msg = text; }
+  document.getElementById('water-msg').textContent = msg;
+}
+
+function addWater() {
+  if (waterGlasses >= TOTAL_GLASSES) return;
+  waterGlasses++;
+  try { localStorage.setItem(todayKey(), waterGlasses); } catch(e) {}
+  if (navigator.vibrate) navigator.vibrate(40);
+  buildGlassGrid();
+}
+
+function removeWater() {
+  if (waterGlasses <= 0) return;
+  waterGlasses--;
+  try { localStorage.setItem(todayKey(), waterGlasses); } catch(e) {}
+  buildGlassGrid();
+}
+
+function resetWater() {
+  waterGlasses = 0;
+  try { localStorage.setItem(todayKey(), 0); } catch(e) {}
+  buildGlassGrid();
+}
+
+buildGlassGrid();
+
+// ── WATER ALARM ──
+let alarmInterval = 30; // minutes
+let alarmTimer = null;
+let alarmOn = false;
+let alarmNextAt = null;
+
+function setAlarmInterval(mins, btn) {
+  document.querySelectorAll('#alarm-presets .timer-preset').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  alarmInterval = mins;
+  if (alarmOn) { stopAlarm(); startAlarm(); } // restart with new interval
+}
+
+async function toggleAlarm() {
+  if (alarmOn) { stopAlarm(); return; }
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+  startAlarm();
+}
+
+function startAlarm() {
+  alarmOn = true;
+  alarmNextAt = Date.now() + alarmInterval * 60 * 1000;
+  alarmTimer = setInterval(fireAlarm, alarmInterval * 60 * 1000);
+  document.getElementById('alarm-toggle-btn').textContent = '🔕 Stop Alarm';
+  document.getElementById('alarm-toggle-btn').style.background = 'var(--red)';
+  document.getElementById('alarm-dot').style.background = 'var(--green)';
+  updateAlarmStatus();
+  // Tick every minute to update countdown
+  alarmStatusTicker = setInterval(updateAlarmStatus, 30000);
+}
+
+let alarmStatusTicker = null;
+
+function stopAlarm() {
+  alarmOn = false;
+  clearInterval(alarmTimer);
+  clearInterval(alarmStatusTicker);
+  alarmTimer = null;
+  document.getElementById('alarm-toggle-btn').textContent = '🔔 Start Alarm';
+  document.getElementById('alarm-toggle-btn').style.background = 'var(--blue)';
+  document.getElementById('alarm-dot').style.background = 'var(--border)';
+  document.getElementById('alarm-status-text').textContent = 'Alarm is off';
+}
+
+function updateAlarmStatus() {
+  if (!alarmOn || !alarmNextAt) return;
+  const remaining = Math.max(0, Math.round((alarmNextAt - Date.now()) / 60000));
+  document.getElementById('alarm-status-text').textContent = `✅ Alarm on · Next reminder in ${remaining} min`;
+}
+
+function fireAlarm() {
+  alarmNextAt = Date.now() + alarmInterval * 60 * 1000;
+  updateAlarmStatus();
+  // Vibrate
+  if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 500]);
+  // Notification
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('💧 Drink Water!', {
+      body: `You've had ${(waterGlasses * 0.25).toFixed(1)}L today. Goal is 4L. Have a glass now!`,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💧</text></svg>'
+    });
+  }
+}
+
+// ── INIT ──
+buildShopList();
+</script>
+</body>
+</html>
